@@ -24,6 +24,8 @@ namespace Cyko
                InitializeComponent();
           }
 
+          
+
           private void Form1_Load(object sender, EventArgs e)
           {
                cboMode.Text = "Target Quality";
@@ -40,6 +42,7 @@ namespace Cyko
                txtOutput.Text = exePath;
 
                
+
                              
           }
 
@@ -304,23 +307,41 @@ namespace Cyko
 
           void proc_DataReceived(object sender, DataReceivedEventArgs e)
           {
+
                // output will be in string e.Data
                
                //edit_txtout(e.Data);
                //txtOut.Text = data2;
           }
 
-         
+          void p_DataReceived(object sender, DataReceivedEventArgs e)
+          {
+               //this.txtOut.Text = e.Data;
+               double percentage;
+               int percentage2;
+               
+               if (e.Data != null)
+               {
+                    string outredirect = e.Data;
+                    if (outredirect.Length > 5)
+                    if (outredirect.Substring(0, 4) == "Enco")
+                    {
+                         int index2 = outredirect.IndexOf(',');
+                         int index = outredirect.IndexOf('%');
+                         outredirect = outredirect.Substring(index2 + 1, index - index2 - 1);
+                         outredirect = outredirect.Trim();
+                         this.txtOut.Text = outredirect;
+                         percentage = Convert.ToDouble(outredirect);
+                         percentage2 = Convert.ToInt32(percentage);
+                         progressBar1.Maximum = 100;
+                         progressBar1.Value = percentage2;
+                    }
+               }
+          }
 
           private void btnEncode_Click(object sender, EventArgs e)
           {
                string cmdlet = listOut.Items[0].ToString();
-
-               //test(cmdlet);
-
-
-               //OnDataRead += data => this.txtOut.AppendText(data != null ? data : "Program finished"); /*Console.WriteLine*/ //MessageBox.Show(data != null ? data : "Program finished");
-               Thread readingThread = new Thread(Read);
                Process p = new Process()
                {
                     StartInfo = new ProcessStartInfo()
@@ -334,11 +355,62 @@ namespace Cyko
                     EnableRaisingEvents = true,
                     SynchronizingObject = this
                };
-
-               p.OutputDataReceived += (s, ea) => this.txtOut.Text = ea.Data;
+               
+               p.StartInfo.Arguments = cmdlet;
+               p.OutputDataReceived += p_DataReceived;
+               string outputredirect;
                p.Start();
                p.BeginOutputReadLine();
+               p.Exited += new EventHandler(ProcExited);
+               //test(cmdlet);
 
+
+               //OnDataRead += data => this.txtOut.AppendText(data != null ? data : "Program finished"); /*Console.WriteLine*/ //MessageBox.Show(data != null ? data : "Program finished");
+               /*
+               Thread readingThread = new Thread(Read);
+               FixedProcess p = new FixedProcess()
+               {
+                    StartInfo = new ProcessStartInfo()
+                    {
+                         FileName = "handbrakeCli.exe",
+                         Arguments = cmdlet,
+                         RedirectStandardOutput = true,
+                         UseShellExecute = false,
+                         CreateNoWindow = true,
+                    },
+                    EnableRaisingEvents = true,
+                    SynchronizingObject = this
+               };
+               string outredirect;
+               //string[] redirectstr;
+               //int percentage;
+               p.OutputDataReceived += (s, ea) =>
+               {
+                    outredirect = ea.Data;
+
+
+
+                    if (outredirect.Length > 5)
+                    {
+                         if (outredirect.Substring(0, 4) == "Enco")
+                         {
+                              int index2 = outredirect.IndexOf(',');
+                              int index = outredirect.IndexOf('%');
+                              outredirect = outredirect.Substring(index2 + 1, index - index2 - 1);
+                              outredirect = outredirect.Trim();
+                              this.txtOut.Text = outredirect;
+                              // percentage = Convert.ToInt32(outredirect);
+
+                              //progressBar1.Maximum = 100;
+                              //progressBar1.Step = percentage;
+                         }
+                    }
+               };
+                    
+               
+               p.Start();
+               p.BeginOutputReadLine();
+               */
                /*
                //using (Process process = Process.Start(info))
                {
@@ -522,8 +594,29 @@ namespace Cyko
 
           */
 
+          private void ProcExited(object sender, System.EventArgs e)
+          {
+               Process proc = (Process)sender;
+
+               // Wait a short while to allow all console output to be processed and appended
+               // before appending the success/fail message.
+               Thread.Sleep(40);
+
+               if (proc.ExitCode == 0)
+               {
+                    MessageBox.Show("Encoding Finished");
+               }
+               else
+               {
+                    MessageBox.Show("Failed");
+               }
+
+               proc.Close();
+          }
+          
+          }
 
      }
 
    
-}
+

@@ -20,6 +20,8 @@
                base.Dispose(disposing);
           }
 
+          
+
           #region Windows Form Designer generated code
 
           /// <summary>
@@ -69,6 +71,7 @@
                this.tmrEncodeTimer = new System.Windows.Forms.Timer(this.components);
                this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
                this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+               this.progressBar1 = new System.Windows.Forms.ProgressBar();
                this.tabControl1.SuspendLayout();
                this.tabInput.SuspendLayout();
                this.groupBox4.SuspendLayout();
@@ -400,6 +403,7 @@
                // 
                // tabQueue
                // 
+               this.tabQueue.Controls.Add(this.progressBar1);
                this.tabQueue.Controls.Add(this.txtOut);
                this.tabQueue.Controls.Add(this.chkShutdown);
                this.tabQueue.Controls.Add(this.chkShowConsole);
@@ -420,12 +424,14 @@
                // 
                this.txtOut.Location = new System.Drawing.Point(15, 241);
                this.txtOut.Name = "txtOut";
+               this.txtOut.ReadOnly = true;
                this.txtOut.Size = new System.Drawing.Size(565, 20);
                this.txtOut.TabIndex = 7;
                // 
                // chkShutdown
                // 
                this.chkShutdown.AutoSize = true;
+               this.chkShutdown.Enabled = false;
                this.chkShutdown.Location = new System.Drawing.Point(397, 208);
                this.chkShutdown.Name = "chkShutdown";
                this.chkShutdown.Size = new System.Drawing.Size(183, 17);
@@ -436,8 +442,7 @@
                // chkShowConsole
                // 
                this.chkShowConsole.AutoSize = true;
-               this.chkShowConsole.Checked = true;
-               this.chkShowConsole.CheckState = System.Windows.Forms.CheckState.Checked;
+               this.chkShowConsole.Enabled = false;
                this.chkShowConsole.Location = new System.Drawing.Point(15, 208);
                this.chkShowConsole.Name = "chkShowConsole";
                this.chkShowConsole.Size = new System.Drawing.Size(174, 17);
@@ -504,6 +509,13 @@
                // openFileDialog1
                // 
                this.openFileDialog1.FileName = "openFileDialog1";
+               // 
+               // progressBar1
+               // 
+               this.progressBar1.Location = new System.Drawing.Point(15, 267);
+               this.progressBar1.Name = "progressBar1";
+               this.progressBar1.Size = new System.Drawing.Size(565, 23);
+               this.progressBar1.TabIndex = 8;
                // 
                // Form1
                // 
@@ -573,6 +585,7 @@
           private System.Windows.Forms.NumericUpDown txtAudioValue;
           private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
           private System.Windows.Forms.OpenFileDialog openFileDialog1;
+          private System.Windows.Forms.ProgressBar progressBar1;
      }
 }
 
