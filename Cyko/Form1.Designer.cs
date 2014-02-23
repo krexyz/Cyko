@@ -59,6 +59,7 @@
                this.label1 = new System.Windows.Forms.Label();
                this.listAdd = new System.Windows.Forms.ListBox();
                this.tabQueue = new System.Windows.Forms.TabPage();
+               this.progressBar1 = new System.Windows.Forms.ProgressBar();
                this.txtOut = new System.Windows.Forms.TextBox();
                this.chkShutdown = new System.Windows.Forms.CheckBox();
                this.chkShowConsole = new System.Windows.Forms.CheckBox();
@@ -71,7 +72,6 @@
                this.tmrEncodeTimer = new System.Windows.Forms.Timer(this.components);
                this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
                this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
-               this.progressBar1 = new System.Windows.Forms.ProgressBar();
                this.tabControl1.SuspendLayout();
                this.tabInput.SuspendLayout();
                this.groupBox4.SuspendLayout();
@@ -420,6 +420,13 @@
                this.tabQueue.Text = "Queue";
                this.tabQueue.UseVisualStyleBackColor = true;
                // 
+               // progressBar1
+               // 
+               this.progressBar1.Location = new System.Drawing.Point(15, 267);
+               this.progressBar1.Name = "progressBar1";
+               this.progressBar1.Size = new System.Drawing.Size(565, 23);
+               this.progressBar1.TabIndex = 8;
+               // 
                // txtOut
                // 
                this.txtOut.Location = new System.Drawing.Point(15, 241);
@@ -458,6 +465,7 @@
                this.btnAbort.TabIndex = 4;
                this.btnAbort.Text = "Abort Encoding";
                this.btnAbort.UseVisualStyleBackColor = true;
+               this.btnAbort.Click += new System.EventHandler(this.btnAbort_Click);
                // 
                // btnClear
                // 
@@ -509,13 +517,6 @@
                // openFileDialog1
                // 
                this.openFileDialog1.FileName = "openFileDialog1";
-               // 
-               // progressBar1
-               // 
-               this.progressBar1.Location = new System.Drawing.Point(15, 267);
-               this.progressBar1.Name = "progressBar1";
-               this.progressBar1.Size = new System.Drawing.Size(565, 23);
-               this.progressBar1.TabIndex = 8;
                // 
                // Form1
                // 
