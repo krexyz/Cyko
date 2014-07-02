@@ -33,7 +33,6 @@
                this.components = new System.ComponentModel.Container();
                this.tabControl1 = new System.Windows.Forms.TabControl();
                this.tabInput = new System.Windows.Forms.TabPage();
-               this.button3 = new System.Windows.Forms.Button();
                this.txtScanStatus = new System.Windows.Forms.TextBox();
                this.btnEnqueue = new System.Windows.Forms.Button();
                this.groupBox4 = new System.Windows.Forms.GroupBox();
@@ -94,7 +93,6 @@
                // 
                // tabInput
                // 
-               this.tabInput.Controls.Add(this.button3);
                this.tabInput.Controls.Add(this.txtScanStatus);
                this.tabInput.Controls.Add(this.btnEnqueue);
                this.tabInput.Controls.Add(this.groupBox4);
@@ -113,16 +111,6 @@
                this.tabInput.TabIndex = 0;
                this.tabInput.Text = "Inputs";
                this.tabInput.UseVisualStyleBackColor = true;
-               // 
-               // button3
-               // 
-               this.button3.Location = new System.Drawing.Point(3, 359);
-               this.button3.Name = "button3";
-               this.button3.Size = new System.Drawing.Size(75, 23);
-               this.button3.TabIndex = 8;
-               this.button3.Text = "Testing";
-               this.button3.UseVisualStyleBackColor = true;
-               this.button3.Click += new System.EventHandler(this.button3_Click);
                // 
                // txtScanStatus
                // 
@@ -582,7 +570,6 @@
           private System.Windows.Forms.ListBox listOut;
           private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
           private System.Windows.Forms.Timer tmrEncodeTimer;
-          private System.Windows.Forms.Button button3;
           private System.Windows.Forms.NumericUpDown txtAudioValue;
           private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
           private System.Windows.Forms.OpenFileDialog openFileDialog1;

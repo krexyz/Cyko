@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cyko", "Cyko\Cyko.csproj", "{9E0B186F-134A-4673-9C73-1084344CA005}"
 EndProject
+Project("{F088123C-0E9E-452A-89E6-6BA2F21D5CAC}") = "ModelingProject1", "ModelingProject1\ModelingProject1.modelproj", "{687614D2-6711-4795-B346-7AD3419D0FF0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,6 +15,10 @@ Global
 		{9E0B186F-134A-4673-9C73-1084344CA005}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9E0B186F-134A-4673-9C73-1084344CA005}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9E0B186F-134A-4673-9C73-1084344CA005}.Release|Any CPU.Build.0 = Release|Any CPU
+		{687614D2-6711-4795-B346-7AD3419D0FF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{687614D2-6711-4795-B346-7AD3419D0FF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{687614D2-6711-4795-B346-7AD3419D0FF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{687614D2-6711-4795-B346-7AD3419D0FF0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -14,36 +14,44 @@ using System.Threading;
 
 namespace Cyko
 {
-
      public partial class Form1 : Form
      {
-          int i, numQueue;
+          Encode encode;
+          int i, numQueue, num;
           string cmdlet;
-          string[] listout_contents;
           bool running;
-          bool aborting = false;
+          int resmode;
 
           public Form1()
           {
                InitializeComponent();
           }
 
-
-
           private void Form1_Load(object sender, EventArgs e)
           {
                cboMode.Text = "Target Quality";
+               //cboMode.SelectedIndex = 0;
                cboPresets.Text = "Medium";
+               //cboPresets.SelectedIndex = 5;
                cboTunes.Text = "Animation";
+               //cboTunes.SelectedIndex = 1;
                cboProfiles.Text = "High";
+               //cboProfiles.SelectedIndex = 2;
                i = 0;
                this.listAdd.AllowDrop = true;
                //this.AllowDrop = true;
                this.listAdd.DragEnter += listAdd_DragEnter;
                this.listAdd.DragDrop += listAdd_DragDrop;
 
+               resmode = 0;
+
                string exePath = Application.StartupPath;
                txtOutput.Text = exePath;
+
+               encode = new Encode();
+
+               encode.p.OutputDataReceived += p_DataReceived;
+               encode.p.Exited += new EventHandler(p_Exited);
 
           }
 
@@ -66,9 +74,15 @@ namespace Cyko
           private void tglResolution_Click(object sender, EventArgs e)
           {
                if (tglResolution.Text == "Height")
+               {
                     tglResolution.Text = "Width";
+                    resmode = 1;
+               }
                else
+               {
                     tglResolution.Text = "Height";
+                    resmode = 0;
+               }
           }
 
           private void tmrEncodeTimer_Tick(object sender, EventArgs e)
@@ -79,7 +93,7 @@ namespace Cyko
 
           private void button3_Click(object sender, EventArgs e)
           {
-               tmrEncodeTimer.Enabled = true;
+               //tmrEncodeTimer.Enabled = true;
           }
 
           private void cboMode_SelectedIndexChanged(object sender, EventArgs e)
@@ -98,8 +112,69 @@ namespace Cyko
                txtVideoValue.Focus();
           }
 
+          public int getQueueNum()
+          {
+               return listAdd.Items.Count;
+          }
+
+          public bool checkDenoise()
+          {
+               if (chkDenoise.Checked == true)
+                    return true;
+               return false;
+          }
+
+          public bool checkHardSub()
+          {
+               if (chkHardSubs.Checked == true)
+                    return true;
+               return false;
+          }
+
           private void btnEnqueue_Click(object sender, EventArgs e)
           {
+               int max = listAdd.Items.Count;
+               int crf;
+
+               if (cboMode.Text == "Target Quality")
+               {
+
+                    crf = Convert.ToInt32(txtVideoValue.Text);
+                    if (crf < 10 || crf > 30)
+                    {
+                         MessageBox.Show("CRF must be between 10 and 30", "Error");
+                         txtVideoValue.Focus();
+                         return;
+                    }
+               }
+
+               Settings setting;
+               EncodeItem encode;
+
+               setting = new Settings();
+
+               setting.setMode(cboMode.SelectedIndex, Convert.ToInt32(txtVideoValue.Text));
+               setting.setPreset(cboPresets.SelectedIndex);
+               setting.setTunes(cboTunes.SelectedIndex);
+               setting.setProfile(cboProfiles.SelectedIndex);
+
+               setting.setPicSetting(Convert.ToInt32(txtResolution.Text), 
+                    resmode, checkDenoise(), checkHardSub());
+
+               setting.setAudio(Convert.ToInt32(txtAudioValue.Value));
+
+               int ii;
+
+               for (ii = 0; ii < max; ii++)
+               {
+                    encode = new EncodeItem(listAdd.Items[0].ToString(), txtOutput.Text, setting);
+                    encode.processArg();
+                    listOut.Items.Add(encode.ToString());
+                    listAdd.Items.RemoveAt(0);
+
+                    //MessageBox.Show(encode.ToString());
+               }
+               /*
                int max = listAdd.Items.Count;
                int crf, audioBitrate;
                int ii;
@@ -107,7 +182,6 @@ namespace Cyko
 
                for (ii = 0; ii < max; ii++)
                {
-
 
                     if (cboMode.Text == "Target Quality")
                     {
@@ -131,7 +205,7 @@ namespace Cyko
                     else
                          resolution = " -w " + txtResolution.Text;
 
-
+                    
                     int index = cboPresets.SelectedIndex;
 
                     x264 = "-e x264 ";
@@ -193,7 +267,7 @@ namespace Cyko
                          case 2: x264 += " --x264-profile high ";
                               break;
                     }
-
+                    
                     if (chkDenoise.Checked == true)
                          x264 += "-x nr=1000 ";
 
@@ -207,6 +281,7 @@ namespace Cyko
                          subs = " -s 1,2,3,4,5,6,7,8,9 --subtitle-default ";
                          containerstring = "-out.mkv";
                     }
+                    
 
                     string filename = Path.GetFileNameWithoutExtension(listAdd.Items[0].ToString());
                     string inputstring = " -i \"" + listAdd.Items[0].ToString() + "\" ";
@@ -215,17 +290,15 @@ namespace Cyko
                     string intermediate = inputstring + outputstring + x264 + mode + resolution + subs + audiostring;
                     intermediate = intermediate.Replace(@"\\", @"\");
 
-
-
-                    MessageBox.Show(intermediate);
+                    //MessageBox.Show(intermediate);
 
                     //tabControl1.SelectedIndex = 1;
 
                     listOut.Items.Add(intermediate);
                     listAdd.Items.RemoveAt(0);
-
+                     
                }
-
+               */
 
           }
 
@@ -272,7 +345,7 @@ namespace Cyko
                     listAdd.Items.Add(openFileDialog1.FileName);
           }
 
-
+          
           /*private void txtAudioValue_KeyPress(object sender, EventArgs e)
           {
                if (txtAudioValue.Value > 320)
@@ -315,6 +388,32 @@ namespace Cyko
                //txtOut.Text = data2;
           }
 
+          
+
+          private void btnEncode_Click(object sender, EventArgs e)
+          {
+               numQueue = listOut.Items.Count;
+               num = 1;
+               btnEncode.Enabled = false;
+               runHandbrake();
+          }
+
+          private void runHandbrake()
+          {
+               cmdlet = listOut.Items[0].ToString();
+
+               encode.p.SynchronizingObject = this;
+               encode.p.StartInfo.Arguments = cmdlet;
+               //encode.p.EnableRaisingEvents = true;
+
+               running = true;
+
+               encode.p.Start();
+               encode.p.PriorityClass = ProcessPriorityClass.BelowNormal;
+               encode.p.BeginOutputReadLine();
+               
+          }
+
           void p_DataReceived(object sender, DataReceivedEventArgs e)
           {
                //this.txtOut.Text = e.Data;
@@ -331,7 +430,7 @@ namespace Cyko
                               int index = outredirect.IndexOf('%');
                               outredirect = outredirect.Substring(index2 + 1, index - index2 - 1);
                               outredirect = outredirect.Trim();
-                              this.txtOut.Text = outredirect;
+                              this.txtOut.Text = "Encoding File " + num + " out of " + numQueue + " : " + outredirect;
                               percentage = Convert.ToDouble(outredirect);
                               percentage2 = Convert.ToInt32(percentage * 100);
                               progressBar1.Maximum = 10000;
@@ -340,236 +439,75 @@ namespace Cyko
                }
           }
 
-          private void ProcExited(object sender, System.EventArgs e)
+          private void p_Exited(object sender, System.EventArgs e)
           {
-               Process proc = (Process)sender;
+               //Process proc = (Process)sender;
 
                // Wait a short while to allow all console output to be processed and appended
                // before appending the success/fail message.
-               Thread.Sleep(40);
+               Thread.Sleep(200);
+               encode.p.CancelOutputRead();
 
-               if (proc.ExitCode == 0)
+               if (encode.p.ExitCode == 0)
                {
-                    MessageBox.Show("Encoding Finished");
                     listOut.Items.RemoveAt(0);
-               }
-               //else
-               {
-                    //MessageBox.Show("Failed");
-               }
 
-               //btnEncode.Enabled = true;
-               //btnAbort.Enabled = false;
-               //running = false;
-
-               //proc.CancelOutputRead();
-
-               //listOut.Items.RemoveAt(0);
-
-               
-               //proc.Close();
-          }
-
-          private void btnEncode_Click(object sender, EventArgs e)
-          {
-               //string 
-               //listout_contents = new string [50];
-
-               numQueue = listOut.Items.Count;
-
-               //for (int abc = 0 ; abc < numQueue ; abc++)
-                    //listout_contents[abc]= listOut.Items[abc].ToString();
-
-               btnEncode.Enabled = false;
-
-               t = new Thread(runHandbrake);
-              
-               
-               t.Start();
-               
-               
-              
-                    
-
-                    //OnDataRead += data => this.txtOut.AppendText(data != null ? data : "Program finished"); /*Console.WriteLine*/ //MessageBox.Show(data != null ? data : "Program finished");
-                    /*
-                    Thread readingThread = new Thread(Read);
-                    FixedProcess p = new FixedProcess()
+                    if (listOut.Items.Count == 0)
                     {
-                         StartInfo = new ProcessStartInfo()
-                         {
-                              FileName = "handbrakeCli.exe",
-                              Arguments = cmdlet,
-                              RedirectStandardOutput = true,
-                              UseShellExecute = false,
-                              CreateNoWindow = true,
-                         },
-                         EnableRaisingEvents = true,
-                         SynchronizingObject = this
-                    };
-                    string outredirect;
-                    //string[] redirectstr;
-                    //int percentage;
-                    p.OutputDataReceived += (s, ea) =>
-                    {
-                         outredirect = ea.Data;
-
-
-
-                         if (outredirect.Length > 5)
-                         {
-                              if (outredirect.Substring(0, 4) == "Enco")
-                              {
-                                   int index2 = outredirect.IndexOf(',');
-                                   int index = outredirect.IndexOf('%');
-                                   outredirect = outredirect.Substring(index2 + 1, index - index2 - 1);
-                                   outredirect = outredirect.Trim();
-                                   this.txtOut.Text = outredirect;
-                                   // percentage = Convert.ToInt32(outredirect);
-
-                                   //progressBar1.Maximum = 100;
-                                   //progressBar1.Step = percentage;
-                              }
-                         }
-                    };
-                    
-               
-                    p.Start();
-                    p.BeginOutputReadLine();
-                    */
-                    /*
-                    //using (Process process = Process.Start(info))
-                    {
-                         Process process = Process.Start(info);
-                         readingThread.Start(process);
-                         process.WaitForExit();
+                         progressBar1.Value = 10000;
+                         this.txtOut.Text = "Finished encoding " + numQueue + " files.";
+                         MessageBox.Show("Encoding Finished");
+                         progressBar1.Value = 0;
+                         running = false;
+                         btnEncode.Enabled = true;
+                         btnAbort.Enabled = false;
                     }
-                    readingThread.Join();
-                     */
-                    //RunWithRedirect(cmdlet);
-
-                    /*
-
-                    var processStartInfo = new ProcessStartInfo
+                    else
                     {
-                         FileName = "HandbrakeCLI.exe",
-                         Arguments = cmdlet,
-                         RedirectStandardInput = true,
-                         RedirectStandardOutput = true,
-                         UseShellExecute = false,
-                    };
-
-                    var process = Process.Start(processStartInfo);
-                    var automator  = new ConsoleAutomator(process.StandardInput, process.StandardOutput);
-               
-                    automator.StandardInputRead += AutomatorStandardInputRead;
-                    automator.StartAutomate();
-
-                    process.WaitForExit();
-                    automator.StandardInputRead -= AutomatorStandardInputRead;
-                    process.Close();
-                    */
-
-               
-          }
-
-          private void runHandbrake()
-          {
-               string theCommand;
-               cmdlet = listOut.Items[0].ToString();
-
-               p.SynchronizingObject = this;
-               p.StartInfo.Arguments = cmdlet;
-               p.OutputDataReceived += p_DataReceived;
-
-               p.Start();
-               running = true;
-               p.BeginOutputReadLine();
-               
-
-               p.Exited += new EventHandler(ProcExited);
-               
-               p.WaitForExit();
-               
-               
-               numQueue--;
-               
-               
-               while (numQueue > 0)
-               {
-                    
-                    theCommand = listOut.Items[0].ToString();
-                    p.StartInfo.Arguments = theCommand;
-                    p.Start();
-                    
-                    
-                    p.WaitForExit();
-                    //p.BeginOutputReadLine();
-
-
-                    numQueue--;
-                    
+                         this.txtOut.Text = "Encoding File " + num + " out of " + numQueue + " : 100.00";
+                         num++;
+                         runHandbrake();
+                    }
                }
+               else
+               {
+                    MessageBox.Show("Failed");
+                    running = false;
+                    btnEncode.Enabled = true;
+                    btnAbort.Enabled = false;
+               }
+
+               //proc.Close();
           }
 
           private void btnAbort_Click(object sender, EventArgs e)
           {
                abortEncode();
-               //p.Kill();
-              // MessageBox.Show("Encoding Aborted");
-               //p.Close();
+               
                btnAbort.Enabled = false;
-               aborting = true;
                if (listOut.Items.Count != 0)
                     btnEncode.Enabled = true;
           }
 
           void abortEncode()
           {
-
                if (running == true)
                {
-                    t.Abort();
-                    p.Kill();
+                    encode.p.Kill();
+                    encode.p.CancelOutputRead();
+                    this.txtOut.Text = "Encoding Aborted.";
                     MessageBox.Show("Encoding Aborted");
+                    btnEncode.Enabled = true;
+                    btnAbort.Enabled = false;
                }
                running = false;
-          }
-
-
-          Thread t;
-
-          Process p = new Process()
-          {
-               StartInfo = new ProcessStartInfo()
-               {
-                    FileName = "handbrakeCli.exe",
-                    Arguments = "",
-                    RedirectStandardOutput = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-               },
-               EnableRaisingEvents = true
-              
-          };
-
-          private Process GetaProcess(string processname)
-          {
-               Process[] aProc = Process.GetProcessesByName(processname);
-
-               if (aProc.Length > 0)
-                    return aProc[0];
-
-               else return null;
           }
 
           protected override void OnFormClosing(FormClosingEventArgs e)
           {
                base.OnFormClosing(e);
-
                if (e.CloseReason == CloseReason.WindowsShutDown) return;
 
-               // Confirm user wants to close
                abortEncode();
           }
 
@@ -728,5 +666,4 @@ namespace Cyko
 
 }
 
-   
 
