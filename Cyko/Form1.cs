@@ -29,14 +29,14 @@ namespace Cyko
 
           private void Form1_Load(object sender, EventArgs e)
           {
-               cboMode.Text = "Target Quality";
-               //cboMode.SelectedIndex = 0;
-               cboPresets.Text = "Medium";
-               //cboPresets.SelectedIndex = 5;
-               cboTunes.Text = "Animation";
-               //cboTunes.SelectedIndex = 1;
-               cboProfiles.Text = "High";
-               //cboProfiles.SelectedIndex = 2;
+               //cboMode.Text = "Target Quality";
+               cboMode.SelectedIndex = 0;
+               //cboPresets.Text = "Medium";
+               cboPresets.SelectedIndex = 5;
+               //cboTunes.Text = "Animation";
+               cboTunes.SelectedIndex = 1;
+               //cboProfiles.Text = "High";
+               cboProfiles.SelectedIndex = 2;
                i = 0;
                this.listAdd.AllowDrop = true;
                //this.AllowDrop = true;
