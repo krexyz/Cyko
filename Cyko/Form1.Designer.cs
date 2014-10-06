@@ -67,10 +67,16 @@
                this.btnRemove = new System.Windows.Forms.Button();
                this.btnEncode = new System.Windows.Forms.Button();
                this.listOut = new System.Windows.Forms.ListBox();
-               this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+               this.menu1 = new System.Windows.Forms.ContextMenuStrip(this.components);
                this.tmrEncodeTimer = new System.Windows.Forms.Timer(this.components);
                this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
                this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+               this.removeItemToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+               this.removeAllItemToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+               this.menu2 = new System.Windows.Forms.ContextMenuStrip(this.components);
+               this.removeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+               this.clearToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+               this.viewInfoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
                this.tabControl1.SuspendLayout();
                this.tabInput.SuspendLayout();
                this.groupBox4.SuspendLayout();
@@ -79,6 +85,8 @@
                this.groupBox1.SuspendLayout();
                ((System.ComponentModel.ISupportInitialize)(this.txtAudioValue)).BeginInit();
                this.tabQueue.SuspendLayout();
+               this.menu1.SuspendLayout();
+               this.menu2.SuspendLayout();
                this.SuspendLayout();
                // 
                // tabControl1
@@ -383,11 +391,13 @@
                // 
                this.listAdd.AllowDrop = true;
                this.listAdd.BackColor = System.Drawing.SystemColors.Window;
+               this.listAdd.ContextMenuStrip = this.menu1;
                this.listAdd.FormattingEnabled = true;
                this.listAdd.Location = new System.Drawing.Point(6, 26);
                this.listAdd.Name = "listAdd";
                this.listAdd.Size = new System.Drawing.Size(583, 121);
                this.listAdd.TabIndex = 0;
+               this.listAdd.SelectedIndexChanged += new System.EventHandler(this.listAdd_SelectedIndexChanged);
                // 
                // tabQueue
                // 
@@ -487,16 +497,20 @@
                // 
                // listOut
                // 
+               this.listOut.ContextMenuStrip = this.menu2;
                this.listOut.FormattingEnabled = true;
                this.listOut.Location = new System.Drawing.Point(6, 6);
                this.listOut.Name = "listOut";
                this.listOut.Size = new System.Drawing.Size(583, 147);
                this.listOut.TabIndex = 0;
                // 
-               // contextMenuStrip1
+               // menu1
                // 
-               this.contextMenuStrip1.Name = "contextMenuStrip1";
-               this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
+               this.menu1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.removeItemToolStripMenuItem,
+            this.removeAllItemToolStripMenuItem});
+               this.menu1.Name = "contextMenuStrip1";
+               this.menu1.Size = new System.Drawing.Size(162, 48);
                // 
                // tmrEncodeTimer
                // 
@@ -505,6 +519,45 @@
                // openFileDialog1
                // 
                this.openFileDialog1.FileName = "openFileDialog1";
+               // 
+               // removeItemToolStripMenuItem
+               // 
+               this.removeItemToolStripMenuItem.Name = "removeItemToolStripMenuItem";
+               this.removeItemToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
+               this.removeItemToolStripMenuItem.Text = "Remove Item";
+               // 
+               // removeAllItemToolStripMenuItem
+               // 
+               this.removeAllItemToolStripMenuItem.Name = "removeAllItemToolStripMenuItem";
+               this.removeAllItemToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
+               this.removeAllItemToolStripMenuItem.Text = "Remove All Item";
+               // 
+               // menu2
+               // 
+               this.menu2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.removeToolStripMenuItem,
+            this.clearToolStripMenuItem,
+            this.viewInfoToolStripMenuItem});
+               this.menu2.Name = "menu2";
+               this.menu2.Size = new System.Drawing.Size(124, 70);
+               // 
+               // removeToolStripMenuItem
+               // 
+               this.removeToolStripMenuItem.Name = "removeToolStripMenuItem";
+               this.removeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+               this.removeToolStripMenuItem.Text = "Remove";
+               // 
+               // clearToolStripMenuItem
+               // 
+               this.clearToolStripMenuItem.Name = "clearToolStripMenuItem";
+               this.clearToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+               this.clearToolStripMenuItem.Text = "Clear";
+               // 
+               // viewInfoToolStripMenuItem
+               // 
+               this.viewInfoToolStripMenuItem.Name = "viewInfoToolStripMenuItem";
+               this.viewInfoToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+               this.viewInfoToolStripMenuItem.Text = "View Info";
                // 
                // Form1
                // 
@@ -528,6 +581,8 @@
                ((System.ComponentModel.ISupportInitialize)(this.txtAudioValue)).EndInit();
                this.tabQueue.ResumeLayout(false);
                this.tabQueue.PerformLayout();
+               this.menu1.ResumeLayout(false);
+               this.menu2.ResumeLayout(false);
                this.ResumeLayout(false);
 
           }
@@ -568,12 +623,18 @@
           private System.Windows.Forms.Button btnRemove;
           private System.Windows.Forms.Button btnEncode;
           private System.Windows.Forms.ListBox listOut;
-          private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+          private System.Windows.Forms.ContextMenuStrip menu1;
           private System.Windows.Forms.Timer tmrEncodeTimer;
           private System.Windows.Forms.NumericUpDown txtAudioValue;
           private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
           private System.Windows.Forms.OpenFileDialog openFileDialog1;
           private System.Windows.Forms.ProgressBar progressBar1;
+          private System.Windows.Forms.ToolStripMenuItem removeItemToolStripMenuItem;
+          private System.Windows.Forms.ToolStripMenuItem removeAllItemToolStripMenuItem;
+          private System.Windows.Forms.ContextMenuStrip menu2;
+          private System.Windows.Forms.ToolStripMenuItem removeToolStripMenuItem;
+          private System.Windows.Forms.ToolStripMenuItem clearToolStripMenuItem;
+          private System.Windows.Forms.ToolStripMenuItem viewInfoToolStripMenuItem;
      }
 }
 

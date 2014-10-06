@@ -511,6 +511,22 @@ namespace Cyko
                abortEncode();
           }
 
+          private void listAdd_SelectedIndexChanged(object sender, EventArgs e)
+          {
+               /*
+               if (listAdd.SelectedIndex == -1)
+               {
+                    menu1.Items[0].Enabled = false;
+                    menu1.Items[1].Enabled = false;
+               }
+               else
+               {
+                    menu1.Items[0].Enabled = true;
+                    menu1.Items[1].Enabled = true;
+               }
+               */
+          }
+
           
 
           /*
