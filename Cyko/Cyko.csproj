@@ -47,7 +47,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class2.cs" />
     <Compile Include="Encode.cs" />
     <Compile Include="EncodeHelper.cs" />
     <Compile Include="EncodeItem.cs" />

@@ -41,7 +41,6 @@ namespace Cyko
 
         public string processArg()
         {
-
             string resolution;
             string subs;
             string x264;

@@ -9,7 +9,6 @@ namespace Cyko
 {
     class EncodeHelper
     {
-        Boolean running = false;
         Form1 form1;
         Process p;
         static int num = 1;
@@ -41,12 +40,9 @@ namespace Cyko
             p.SynchronizingObject = form1;
             p.StartInfo.Arguments = args;
 
-            running = true;
-
             p.Start();
             p.PriorityClass = ProcessPriorityClass.BelowNormal;
             p.BeginOutputReadLine();
-           // p.WaitForExit();
         }
 
         public void abort()
@@ -114,8 +110,7 @@ namespace Cyko
                     output = "Finished encoding " + total + " files.";
                     
                     form1.progress = 0;
-                    running = false;
-                    //reset button encode and abort
+                    //add code to reset button encode and abort
                     num = 1;
                 }
                 else
@@ -129,9 +124,8 @@ namespace Cyko
             else
             {
                 output = "Failed";
-                running = false;
                 deliverOutput(output, 0);
-                //reset button encoding and abort
+                //add code to reset button encoding and abort
             }
             p.Close();
             //proc.Close();
