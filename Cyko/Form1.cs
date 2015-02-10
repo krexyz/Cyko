@@ -10,33 +10,43 @@ using System.Windows.Forms;
 using System.IO;
 using System.Diagnostics;
 using System.Threading;
+using System.Collections;
 
 
 namespace Cyko
 {
      public partial class Form1 : Form
      {
-          Encode encode;
-          int i, numQueue, num;
+         int i, numQueue;
           string cmdlet;
           bool running;
           int resmode;
+          Encode encode;
+
+          BindingList<EncodeItem> encodeItem;
 
           public Form1()
           {
                InitializeComponent();
+               encode = new Encode();
+               encodeItem = encode.encodeList;
           }
 
           private void Form1_Load(object sender, EventArgs e)
           {
-               //cboMode.Text = "Target Quality";
-               cboMode.SelectedIndex = 0;
-               //cboPresets.Text = "Medium";
-               cboPresets.SelectedIndex = 5;
-               //cboTunes.Text = "Animation";
-               cboTunes.SelectedIndex = 1;
-               //cboProfiles.Text = "High";
-               cboProfiles.SelectedIndex = 2;
+               cboMode.SelectedIndex = s_Setting.mode;
+               cboPresets.SelectedIndex = s_Setting.preset;
+               cboTunes.SelectedIndex = s_Setting.tune;
+               cboProfiles.SelectedIndex = s_Setting.profile;
+
+               resmode = s_Setting.resMode;
+               txtResolution.Text = s_Setting.resolution.ToString();
+               txtVideoValue.Text = s_Setting.vquality.ToString();
+
+               txtAudioValue.Value = s_Setting.audioBitrate;
+
+               chkDenoise.Checked = s_Setting.denoise;
+
                i = 0;
                this.listAdd.AllowDrop = true;
                //this.AllowDrop = true;
@@ -48,10 +58,11 @@ namespace Cyko
                string exePath = Application.StartupPath;
                txtOutput.Text = exePath;
 
-               encode = new Encode();
+               progressBar1.Maximum = 10000;
 
-               encode.p.OutputDataReceived += p_DataReceived;
-               encode.p.Exited += new EventHandler(p_Exited);
+               listOut.DataSource = encode.encodeList;
+               listOut.DisplayMember = "argument";
+               listOut.ValueMember = "argument";
 
           }
 
@@ -83,6 +94,7 @@ namespace Cyko
                     tglResolution.Text = "Height";
                     resmode = 0;
                }
+               s_Setting.resMode = resmode;
           }
 
           private void tmrEncodeTimer_Tick(object sender, EventArgs e)
@@ -98,18 +110,25 @@ namespace Cyko
 
           private void cboMode_SelectedIndexChanged(object sender, EventArgs e)
           {
-               if (cboMode.Text == "Target Quality")
-               {
-                    txtVideoValue.MaxLength = 2;
-                    txtVideoValue.Text = "23";
-               }
-               else
-               {
-                    txtVideoValue.MaxLength = 4;
-                    txtVideoValue.Text = "1000";
-               }
+               switchMode();
 
                txtVideoValue.Focus();
+          }
+
+          private void switchMode()
+          {
+              if (cboMode.SelectedIndex == 0)
+              {
+                  txtVideoValue.MaxLength = 2;
+                  txtVideoValue.Text = "23";
+              }
+              else
+              {
+                  txtVideoValue.MaxLength = 4;
+                  txtVideoValue.Text = "1000";
+              }
+              s_Setting.mode = cboMode.SelectedIndex;
+              s_Setting.vquality = Convert.ToInt32(txtVideoValue.Text);
           }
 
           public int getQueueNum()
@@ -148,157 +167,15 @@ namespace Cyko
                     }
                }
 
-               Settings setting;
-               EncodeItem encode;
-
-               setting = new Settings();
-
-               setting.setMode(cboMode.SelectedIndex, Convert.ToInt32(txtVideoValue.Text));
-               setting.setPreset(cboPresets.SelectedIndex);
-               setting.setTunes(cboTunes.SelectedIndex);
-               setting.setProfile(cboProfiles.SelectedIndex);
-
-               setting.setPicSetting(Convert.ToInt32(txtResolution.Text), 
-                    resmode, checkDenoise(), checkHardSub());
-
-               setting.setAudio(Convert.ToInt32(txtAudioValue.Value));
-
                int ii;
 
                for (ii = 0; ii < max; ii++)
                {
-                    encode = new EncodeItem(listAdd.Items[0].ToString(), txtOutput.Text, setting);
-                    encode.processArg();
-                    listOut.Items.Add(encode.ToString());
-                    listAdd.Items.RemoveAt(0);
-
+                   encodeItem.Add(new EncodeItem(listAdd.Items[0].ToString(), txtOutput.Text));
+                    //listOut.Items.Add(encode.ToString());
+                    listAdd.Items.RemoveAt(0);                    
                     //MessageBox.Show(encode.ToString());
                }
-               /*
-               int max = listAdd.Items.Count;
-               int crf, audioBitrate;
-               int ii;
-               string mode, x264, resolution, subs, containerstring;
-
-               for (ii = 0; ii < max; ii++)
-               {
-
-                    if (cboMode.Text == "Target Quality")
-                    {
-
-                         crf = Convert.ToInt32(txtVideoValue.Text);
-                         if (crf < 10 || crf > 30)
-                         {
-                              MessageBox.Show("CRF must be between 10 and 30", "Error");
-                              txtVideoValue.Focus();
-                              return;
-                         }
-                         mode = "-q " + txtVideoValue.Text;
-                    }
-                    else
-                         mode = "-2 -T -b ";
-
-                    audioBitrate = Convert.ToInt32(txtAudioValue.Value);
-
-                    if (tglResolution.Text == "Height")
-                         resolution = " -l " + txtResolution.Text;
-                    else
-                         resolution = " -w " + txtResolution.Text;
-
-                    
-                    int index = cboPresets.SelectedIndex;
-
-                    x264 = "-e x264 ";
-
-                    switch (index)
-                    {
-                         case 0: x264 += "--x264-preset ultrafast";
-                              break;
-                         case 1: x264 += "--x264-preset superfast";
-                              break;
-                         case 2: x264 += "--x264-preset veryfast";
-                              break;
-                         case 3: x264 += "--x264-preset faster";
-                              break;
-                         case 4: x264 += "--x264-preset fast";
-                              break;
-                         case 5: x264 += "--x264-preset medium";
-                              break;
-                         case 6: x264 += "--x264-preset slow";
-                              break;
-                         case 7: x264 += "--x264-preset slower";
-                              break;
-                         case 8: x264 += "--x264-preset veryslow";
-                              break;
-                         case 9: x264 += "--x264-preset placebo";
-                              break;
-                    }
-
-                    index = cboTunes.SelectedIndex;
-
-                    switch (index)
-                    {
-                         case 0: x264 += " --x264-tune film";
-                              break;
-                         case 1: x264 += " --x264-tune animation";
-                              break;
-                         case 2: x264 += " --x264-tune grain";
-                              break;
-                         case 3: x264 += " --x264-tune stillimage";
-                              break;
-                         case 4: x264 += " --x264-tune psnr";
-                              break;
-                         case 5: x264 += " --x264-tune ssim";
-                              break;
-                         case 6: x264 += " --x264-tune fastdecode";
-                              break;
-                         case 7: x264 += " --x264-tune zerolatency";
-                              break;
-                    }
-
-                    index = cboProfiles.SelectedIndex;
-
-                    switch (index)
-                    {
-                         case 0: x264 += " --x264-profile baseline ";
-                              break;
-                         case 1: x264 += " --x264-profile main ";
-                              break;
-                         case 2: x264 += " --x264-profile high ";
-                              break;
-                    }
-                    
-                    if (chkDenoise.Checked == true)
-                         x264 += "-x nr=1000 ";
-
-                    if (chkHardSubs.Checked == true)
-                    {
-                         containerstring = "-out.mp4";
-                         subs = " -s 1 --subtitle-burn ";
-                    }
-                    else
-                    {
-                         subs = " -s 1,2,3,4,5,6,7,8,9 --subtitle-default ";
-                         containerstring = "-out.mkv";
-                    }
-                    
-
-                    string filename = Path.GetFileNameWithoutExtension(listAdd.Items[0].ToString());
-                    string inputstring = " -i \"" + listAdd.Items[0].ToString() + "\" ";
-                    string outputstring = " -o \"" + txtOutput.Text + "\\" + filename + containerstring + "\" -m ";
-                    string audiostring = "-E fdk_aac --mixdown stereo -B " + txtAudioValue.Value.ToString();
-                    string intermediate = inputstring + outputstring + x264 + mode + resolution + subs + audiostring;
-                    intermediate = intermediate.Replace(@"\\", @"\");
-
-                    //MessageBox.Show(intermediate);
-
-                    //tabControl1.SelectedIndex = 1;
-
-                    listOut.Items.Add(intermediate);
-                    listAdd.Items.RemoveAt(0);
-                     
-               }
-               */
 
           }
 
@@ -345,14 +222,6 @@ namespace Cyko
                     listAdd.Items.Add(openFileDialog1.FileName);
           }
 
-          
-          /*private void txtAudioValue_KeyPress(object sender, EventArgs e)
-          {
-               if (txtAudioValue.Value > 320)
-                    txtAudioValue.Value = 320;
-          }*/
-
-
           void RunWithRedirect(string cmdPath)
           {
                var proc = new Process();
@@ -393,91 +262,9 @@ namespace Cyko
           private void btnEncode_Click(object sender, EventArgs e)
           {
                numQueue = listOut.Items.Count;
-               num = 1;
                btnEncode.Enabled = false;
-               runHandbrake();
-          }
-
-          private void runHandbrake()
-          {
-               cmdlet = listOut.Items[0].ToString();
-
-               encode.p.SynchronizingObject = this;
-               encode.p.StartInfo.Arguments = cmdlet;
-               //encode.p.EnableRaisingEvents = true;
-
-               running = true;
-
-               encode.p.Start();
-               encode.p.PriorityClass = ProcessPriorityClass.BelowNormal;
-               encode.p.BeginOutputReadLine();
-               
-          }
-
-          void p_DataReceived(object sender, DataReceivedEventArgs e)
-          {
-               //this.txtOut.Text = e.Data;
-               double percentage;
-               int percentage2;
-
-               if (e.Data != null)
-               {
-                    string outredirect = e.Data;
-                    if (outredirect.Length > 5)
-                         if (outredirect.Substring(0, 4) == "Enco")
-                         {
-                              int index2 = outredirect.IndexOf(',');
-                              int index = outredirect.IndexOf('%');
-                              outredirect = outredirect.Substring(index2 + 1, index - index2 - 1);
-                              outredirect = outredirect.Trim();
-                              this.txtOut.Text = "Encoding File " + num + " out of " + numQueue + " : " + outredirect;
-                              percentage = Convert.ToDouble(outredirect);
-                              percentage2 = Convert.ToInt32(percentage * 100);
-                              progressBar1.Maximum = 10000;
-                              progressBar1.Value = percentage2;
-                         }
-               }
-          }
-
-          private void p_Exited(object sender, System.EventArgs e)
-          {
-               //Process proc = (Process)sender;
-
-               // Wait a short while to allow all console output to be processed and appended
-               // before appending the success/fail message.
-               Thread.Sleep(200);
-               encode.p.CancelOutputRead();
-
-               if (encode.p.ExitCode == 0)
-               {
-                    listOut.Items.RemoveAt(0);
-
-                    if (listOut.Items.Count == 0)
-                    {
-                         progressBar1.Value = 10000;
-                         this.txtOut.Text = "Finished encoding " + numQueue + " files.";
-                         MessageBox.Show("Encoding Finished");
-                         progressBar1.Value = 0;
-                         running = false;
-                         btnEncode.Enabled = true;
-                         btnAbort.Enabled = false;
-                    }
-                    else
-                    {
-                         this.txtOut.Text = "Encoding File " + num + " out of " + numQueue + " : 100.00";
-                         num++;
-                         runHandbrake();
-                    }
-               }
-               else
-               {
-                    MessageBox.Show("Failed");
-                    running = false;
-                    btnEncode.Enabled = true;
-                    btnAbort.Enabled = false;
-               }
-
-               //proc.Close();
+               encode.start();
+               //runHandbrake();
           }
 
           private void btnAbort_Click(object sender, EventArgs e)
@@ -491,16 +278,10 @@ namespace Cyko
 
           void abortEncode()
           {
-               if (running == true)
+               if (encode.isRunning())
                {
-                    encode.p.Kill();
-                    encode.p.CancelOutputRead();
-                    this.txtOut.Text = "Encoding Aborted.";
-                    MessageBox.Show("Encoding Aborted");
-                    btnEncode.Enabled = true;
-                    btnAbort.Enabled = false;
+                    encode.stop();
                }
-               running = false;
           }
 
           protected override void OnFormClosing(FormClosingEventArgs e)
@@ -526,6 +307,50 @@ namespace Cyko
                }
                */
           }
+
+          private void cboPresets_SelectedIndexChanged(object sender, EventArgs e)
+          {
+              s_Setting.setPreset(cboPresets.SelectedIndex);
+          }
+
+          private void txtAudioValue_ValueChanged(object sender, EventArgs e)
+          {
+              s_Setting.audioBitrate = Convert.ToInt32(txtAudioValue.Value);
+          }
+
+          private void chkHardSubs_CheckedChanged(object sender, EventArgs e)
+          {
+              s_Setting.hardsubs = chkHardSubs.Checked;
+          }
+
+          private void chkDenoise_CheckedChanged(object sender, EventArgs e)
+          {
+              s_Setting.denoise = chkDenoise.Checked;
+          }
+
+          public string message
+          {
+              get { return txtOut.Text; }
+              set { txtOut.Text = value; }
+          }
+
+          public int progress
+          {
+              get { return progressBar1.Value; }
+              set { progressBar1.Value = value; }
+          }
+
+          public int num
+          {
+              get { return listOut.Items.Count; }
+          }
+
+          public string fileToEncode
+          {
+              get { return listOut.Items[0].ToString(); }
+          }
+
+          
 
           
 
